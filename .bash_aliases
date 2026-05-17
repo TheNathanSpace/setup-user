@@ -31,6 +31,9 @@ alias bashrc='vim ~/.bash_aliases; source ~/.bashrc'
 
 alias new-password='openssl rand -base64 32'
 
+export VISUAL=vim
+export EDITOR="$VISUAL"
+
 png-to-ico() {
   local src="$1"
   [ -f "$src" ] || { echo "Usage: to_ico <image-file>"; return 1; }
@@ -118,4 +121,3 @@ alias nginx-logs='cda /home/nathan/swag/config/log/nginx'
 alias bans='grep "ban " /home/nathan/swag/config/log/fail2ban/fail2ban.log --ignore-case'
 alias unban='docker exec swag fail2ban-client unban'
 alias fail2ban='cat /home/nathan/swag/config/log/fail2ban/fail2ban.log'
-
