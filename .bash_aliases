@@ -14,7 +14,14 @@ export PATH="$PATH:/sbin:/home/nathan/bin"
 # Misc.
 #####################################################
 alias cls='clear'
-alias la='ls -al'
+alias la='ls -Alh'
+alias oops='sudo $(history -p !!)'
+
+# pipx install Pygments
+alias ccat='pygmentize -g -O style=dracula'
+alias catt='ccat'
+
+alias new-password='openssl rand -base64 32'
 
 function cda() {
     if [[ -z "$1" ]]; then
@@ -29,8 +36,6 @@ function cda() {
 # Edit .bashrc and re-source it
 alias bashrc='vim ~/.bash_aliases; source ~/.bashrc'
 
-alias new-password='openssl rand -base64 32'
-
 export VISUAL=vim
 export EDITOR="$VISUAL"
 
@@ -44,16 +49,34 @@ png-to-ico() {
 alias here='wslpath -w .'
 alias aria2c='aria2c -c -j 10 -s 10 -x 10'
 
+activate_venv() {
+    if [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+    elif [ -f ".venv/bin/activate" ]; then
+        source .venv/bin/activate
+    else
+        echo "No virtual environment found in current directory"
+        return 1
+    fi
+}
+
 #####################################################
 # Git shortcuts
 #####################################################
 alias ga='git status'
 alias gb='git branch -a'
 alias gl='git log --oneline'
+alias gd='git diff'
+alias git-pull-force='git fetch origin && git reset --hard @{u}'
+function git-unstage() { git restore --staged "$1"; }
+function git-prune() { git remote prune origin; git fetch -p ; git branch -r | awk '{print $1}' | egrep -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk '{print $1}' | xargs git branch -d; }
+alias precommit='pre-commit run --all-files; pre-commit run --all-files'
 
 #####################################################
-# View disk usage of CWD
+# File system
 #####################################################
+
+# View disk usage of CWD
 shopt -s dotglob
 if command -v sudo > /dev/null 2>&1; then
     alias disk-usage='sudo du -sh ./* | sort -hr'
@@ -72,14 +95,20 @@ function find-file() {
     find "$search_dir" -iname "*$1*"
 }
 
+function grep-children() { grep -rn "$1" ./ ;}
 
 #####################################################
 # Docker shortcuts
 #####################################################
-alias logs='docker logs -f'
+alias dlogs='docker logs -f'
 alias dps='docker ps'
 alias dstopall='docker stop $(docker ps -a -q)'
 alias dremoveall='docker rm $(docker ps -a -q); docker network prune -f'
+alias dup='docker compose up -d'
+alias ddown='docker compose down'
+alias dprune='docker container prune -f && docker image prune -a'
+alias dbuild='docker compose build --pull'
+alias dlogs-compose='docker compose logs -f'
 
 # Enter Docker containers as shell
 function denter() {
@@ -87,14 +116,7 @@ function denter() {
         echo "Usage: denter <container-id>"
         return 1
     fi
-    docker exec -it "$1" /bin/bash
-}
-function denter_sh() {
-    if [[ -z "$1" ]]; then
-        echo "Usage: denter <container-id>"
-        return 1
-    fi
-    docker exec -it "$1" /bin/sh
+    docker exec -it "$1" /bin/bash || docker exec -it "$1" /bin/sh
 }
 
 # Kill Docker container process if things have gone terribly wrong

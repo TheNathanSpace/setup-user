@@ -48,13 +48,17 @@ if [[ "${INSTALL_PROGRAMS}" == "true" ]]; then
   echo -e "${YELLOW}Installing other programs...${NC}"
   apt update
   apt upgrade -y
-  apt install -y sudo vim curl git ack tree jq rsync python3 pipx python3-pip python-is-python3
+  apt install -y sudo vim curl git ack tree jq rsync python3 pipx python3-pip python-is-python3 unzip
   # Install yq prettier - https://github.com/mikefarah/yq
   sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
+
+  pipx install Pygments
 
   git config --global --type bool push.autoSetupRemote true
   git config --global credential.helper store
   git config --global core.editor "vim"
+  git config --global user.name TheNathanSpace
+  git config --global user.email 46632454+TheNathanSpace@users.noreply.github.com
 fi
 
 if [[ "${INSTALL_HOMELAB}" == "true" ]]; then
