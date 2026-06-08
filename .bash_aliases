@@ -49,7 +49,7 @@ png-to-ico() {
 alias here='wslpath -w .'
 alias aria2c='aria2c -c -j 10 -s 10 -x 10'
 
-activate_venv() {
+venv() {
     if [ -f "venv/bin/activate" ]; then
         source venv/bin/activate
     elif [ -f ".venv/bin/activate" ]; then
