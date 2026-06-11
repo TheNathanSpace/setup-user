@@ -7,6 +7,8 @@ export RED='\033[0;31m'     # Error
 export NC='\033[0m'         # No Color
 
 if [ "$(id -u)" -ne 0 ]; then echo -e "${RED}Please run as root.${NC}" >&2; exit 1; fi
+echo -e "${GREEN}Enter root password: ${NC}"
+read -s -p "Password: " SUDO_PASSWORD </dev/tty
 
 prompt_yes_no() {
     local question="$1"
@@ -68,6 +70,9 @@ if [[ -z "$USERNAME" ]]; then
     USERNAME="nathan"
 fi
 
+echo -e "${GREEN}Enter ${USERNAME}'s password: ${NC}"
+read -s -p "Password: " USER_PASSWORD </dev/tty
+
 echo -e "${BLUE}Here we go!${NC}"
 
 prompt_yes_no "Do you want to create the user '$USERNAME'?" CREATE_USER
@@ -80,16 +85,7 @@ prompt_yes_no "Do you want to copy gaming-laptop.local's SSH key to this machine
 
 if [[ "${CREATE_USER}" == "true" ]]; then
   echo -e "${BLUE}Adding user $USERNAME and installing sudo...${NC}"
-  id -u "$USERNAME" &>/dev/null || (useradd -m -d "/home/$USERNAME" "$USERNAME" && echo -e "${GREEN}You will be prompted for a new password for $USERNAME.${NC}" && passwd "$USERNAME") && (groupadd sudo; usermod -aG sudo "$USERNAME")
-fi
-
-if [[ "${USER_CLONED}" == "false" ]]; then
-  echo -e "${BLUE}Cloning https://github.com/TheNathanSpace/setup-user to /home/${USERNAME}/setup-user/${NC}"
-  bash -c "cd /home/${USERNAME} && git clone https://github.com/TheNathanSpace/setup-user"
-  if ! cd "/home/${USERNAME}/setup-user/"; then
-      echo -e "${RED}Could not cd to cloned repo: /home/${USERNAME}/setup-user/${NC}"
-      exit 1
-  fi
+  id -u "$USERNAME" &>/dev/null || (useradd -m -d "/home/$USERNAME" "$USERNAME" && (echo "${USERNAME}:${USER_PASSWORD}" | chpasswd)) && (groupadd sudo; usermod -aG sudo "$USERNAME")
 fi
 
 if [[ "${INSTALL_PROGRAMS}" == "true" ]]; then
@@ -97,6 +93,10 @@ if [[ "${INSTALL_PROGRAMS}" == "true" ]]; then
   apt update
   apt upgrade -y
   apt install -y sudo vim curl git ack tree jq rsync python3 pipx python3-pip python-is-python3 zip unzip
+
+  # Log into sudo
+  echo "$USER_PASSWORD" | sudo ls > /dev/null
+
   # Install yq prettier - https://github.com/mikefarah/yq
   sudo wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/local/bin/yq && sudo chmod +x /usr/local/bin/yq
 
@@ -107,6 +107,15 @@ if [[ "${INSTALL_PROGRAMS}" == "true" ]]; then
   git config --global core.editor "vim"
   git config --global user.name TheNathanSpace
   git config --global user.email 46632454+TheNathanSpace@users.noreply.github.com
+fi
+
+if [[ "${USER_CLONED}" == "false" ]]; then
+  echo -e "${BLUE}Cloning https://github.com/TheNathanSpace/setup-user to /home/${USERNAME}/setup-user/${NC}"
+  bash -c "cd /home/${USERNAME} && git clone https://github.com/TheNathanSpace/setup-user"
+  if ! cd "/home/${USERNAME}/setup-user/"; then
+      echo -e "${RED}Could not cd to cloned repo: /home/${USERNAME}/setup-user/${NC}"
+      exit 1
+  fi
 fi
 
 if [[ "${INSTALL_HOMELAB}" == "true" ]]; then
@@ -172,7 +181,7 @@ if [[ "${ADD_PROXMOX_KEY}" == "true" ]]; then
   echo -e "${BLUE}Copying SSH key from gaming-laptop.local to this machine...${NC}"
   echo -e "${GREEN}You will be prompted for nathan@gaming-laptop.local's password.${NC}"
   MACHINE_A_IP=$(hostname -I | awk '{print $1}')
-  ssh -t root@gaming-laptop.local "ssh-copy-id nathan@${MACHINE_A_IP}"
+  ssh -t root@gaming-laptop.local "ssh-copy-id nathan@${MACHINE_A_IP}" </dev/tty
   echo -e "${BLUE}SSH key copied${NC}"
 fi
 
