@@ -14,7 +14,7 @@ prompt_yes_no() {
     local response
 
     echo -e "${GREEN}${question} (y/n): ${NC}"
-    read -p "(y/n): " response
+    read -p "(y/n): " response </dev/tty
 
     if [[ "$response" == "y" || "$response" == "Y" ]]; then
         export "${variable_name}=true"
@@ -86,7 +86,10 @@ fi
 if [[ "${USER_CLONED}" == "false" ]]; then
   echo -e "${BLUE}Cloning https://github.com/TheNathanSpace/setup-user to /home/${USERNAME}/setup-user/${NC}"
   bash -c "cd /home/${USERNAME} && git clone https://github.com/TheNathanSpace/setup-user"
-    cd "/home/${USERNAME}/setup-user/" || (echo -e "${RED}Could not cd to cloned repo: /home/${USERNAME}/setup-user/${NC}" && exit 1)
+  if ! cd "/home/${USERNAME}/setup-user/"; then
+      echo -e "${RED}Could not cd to cloned repo: /home/${USERNAME}/setup-user/${NC}"
+      exit 1
+  fi
 fi
 
 if [[ "${INSTALL_PROGRAMS}" == "true" ]]; then
