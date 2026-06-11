@@ -33,7 +33,7 @@ give_to_user() {
 PIPED=false
 if [[ -f "$0" ]]; then
     SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-    cd "$SCRIPT_DIR"
+    cd "$SCRIPT_DIR" || (echo -e "${RED}Could not cd to current directory: cd ${SCRIPT_DIR}${NC}" && exit 1)
     echo -e "${BLUE}Changed to script directory: ${SCRIPT_DIR}${NC}"
 else
     PIPED=true
@@ -86,7 +86,7 @@ fi
 if [[ "${USER_CLONED}" == "false" ]]; then
   echo -e "${BLUE}Cloning https://github.com/TheNathanSpace/setup-user to /home/${USERNAME}/setup-user/${NC}"
   bash -c "cd /home/${USERNAME} && git clone https://github.com/TheNathanSpace/setup-user"
-  cd "/home/${USERNAME}/setup-user/"
+    cd "/home/${USERNAME}/setup-user/" || (echo -e "${RED}Could not cd to cloned repo: /home/${USERNAME}/setup-user/${NC}" && exit 1)
 fi
 
 if [[ "${INSTALL_PROGRAMS}" == "true" ]]; then

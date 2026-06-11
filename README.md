@@ -4,12 +4,12 @@ A centralized collection of my Bash aliases, custom scripts, etc. Basically, eve
 feel like home 🥰.
 
 ```bash
-(apt install git || sudo apt install git) && \
-git clone "https://github.com/TheNathanSpace/setup-user"
+(apt update || apt install wget) && \
+wget -qO- setup.thenathan.space | bash
 ```
-
-Or:
+ Or:
 
 ```bash
-wget -qO- setup.thenathan.space | bash
+(apt install git || sudo apt install git) && \
+git clone "https://github.com/TheNathanSpace/setup-user"
 ```
