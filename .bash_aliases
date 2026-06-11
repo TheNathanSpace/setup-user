@@ -10,6 +10,10 @@ export NC='\033[0m' # No Color
 
 export PATH="$PATH:/sbin:/home/nathan/bin"
 
+shopt -s histappend
+export HISTSIZE=999999
+export HISTFILESIZE=999999
+
 #####################################################
 # Misc.
 #####################################################

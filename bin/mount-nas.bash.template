@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+sudo mount -t cifs //192.168.1.6/$SHARE_NAME /home/nathan/$MOUNT_PATH -o credentials=/home/nathan/.smbcredentials,uid=1000,gid=1000,vers=3.0
